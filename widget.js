@@ -94,7 +94,7 @@ var Lunar = (function () {
   var THAN = [['Thanh Long',1],['Minh Đường',1],['Thiên Hình',0],['Chu Tước',0],['Kim Quỹ',1],['Thiên Đức',1],['Bạch Hổ',0],['Ngọc Đường',1],['Thiên Lao',0],['Huyền Vũ',0],['Tư Mệnh',1],['Câu Trần',0]];
   var THAN_START = [0, 0, 2, 4, 6, 8, 10, 0, 2, 4, 6, 8, 10]; /* tháng âm 1..12 -> chi của ngày Thanh Long (Tý=0) */
   var GIO_HD = [[0,1,3,6,8,9],[2,3,5,8,10,11],[0,1,4,5,7,10],[0,2,3,6,7,9],[2,4,5,8,9,11],[1,4,6,7,10,11]];
-  function info(d, m, y) {
+  function baseInfo(d, m, y) {
     var l = solar2lunar(d, m, y), jd = l.jd;
     var chi = (jd + 1) % 12, can = (jd + 9) % 10;
     var mChi = (INT(((sunDeg(jd) - 315 + 360) % 360) / 30) + 2) % 12;
@@ -115,12 +115,62 @@ var Lunar = (function () {
       gio: gio, score: score, rating: score >= 2 ? 1 : score <= -2 ? -1 : 0
     };
   }
-  var api = { info: info, solar2lunar: solar2lunar, lunar2solar: lunar2solar };
+
+  var HC = ['Mộc','Mộc','Hỏa','Hỏa','Thổ','Thổ','Kim','Kim','Thủy','Thủy'];
+  var HZ = ['Thủy','Thổ','Mộc','Mộc','Thổ','Hỏa','Hỏa','Thổ','Kim','Kim','Thổ','Thủy'];
+  var SINH = {Mộc:'Hỏa',Hỏa:'Thổ',Thổ:'Kim',Kim:'Thủy',Thủy:'Mộc'}, KHAC = {Mộc:'Thổ',Thổ:'Thủy',Thủy:'Hỏa',Hỏa:'Kim',Kim:'Mộc'};
+  var NAP = ['Hải trung kim','Lô trung hỏa','Đại lâm mộc','Lộ bàng thổ','Kiếm phong kim','Sơn đầu hỏa','Giản hạ thủy','Thành đầu thổ','Bạch lạp kim','Dương liễu mộc','Tuyền trung thủy','Ốc thượng thổ','Tích lịch hỏa','Tùng bách mộc','Trường lưu thủy','Sa trung kim','Sơn hạ hỏa','Bình địa mộc','Bích thượng thổ','Kim bạch kim','Phú đăng hỏa','Thiên hà thủy','Đại trạch thổ','Thoa xuyến kim','Tang đố mộc','Đại khê thủy','Sa trung thổ','Thiên thượng hỏa','Thạch lựu mộc','Đại hải thủy'];
+  var TIET = ['Xuân phân','Thanh minh','Cốc vũ','Lập hạ','Tiểu mãn','Mang chủng','Hạ chí','Tiểu thử','Đại thử','Lập thu','Xử thử','Bạch lộ','Thu phân','Hàn lộ','Sương giáng','Lập đông','Tiểu tuyết','Đại tuyết','Đông chí','Tiểu hàn','Đại hàn','Lập xuân','Vũ thủy','Kinh trập'];
+  var SAO_E = ['Mộc','Kim','Thổ','Nhật','Nguyệt','Hỏa','Thủy','Mộc','Kim','Thổ','Nhật','Nguyệt','Hỏa','Thủy','Mộc','Kim','Thổ','Nhật','Nguyệt','Hỏa','Thủy','Mộc','Kim','Thổ','Nhật','Nguyệt','Hỏa','Thủy'];
+  var HYTHAN = ['Đông Bắc','Tây Bắc','Tây Nam','Chính Nam','Đông Nam','Đông Bắc','Tây Bắc','Tây Nam','Chính Nam','Đông Nam'];
+  var TAITHAN = ['Đông Nam','Đông Nam','Đông','Đông','Bắc','Bắc','Tây Nam','Tây Nam','Tây','Tây'];
+  var BP_CAN = ['Không nên mở kho, dễ hao tài vật','Không nên trồng cây, cây khó lớn','Không nên sửa bếp, dễ gặp hỏa hoạn','Không nên cạo đầu, dễ sinh mụn nhọt','Không nên nhận ruộng đất, dễ bất lợi','Không nên phá hủy giấy tờ, khế ước','Không nên quay tơ, dệt cửi, dễ hư hại','Không nên làm tương, dễ hỏng','Không nên tháo nước, đắp bờ, khó thông','Không nên kiện tụng, dễ yếu thế'];
+  var BP_CHI = ['Không nên xem bói, tự rước họa','Không nên đội mũ, nhận chức','Không nên tế tự, thần không chứng','Không nên đào giếng, nước kém','Không nên khóc lóc, dễ gặp tang','Không nên đi xa, dễ thất thoát tài vật','Không nên lợp nhà, dễ phải làm lại','Không nên uống thuốc lạ','Không nên kê giường, dễ bất an','Không nên mời khách, dễ chia ly','Không nên ăn thịt chó, dễ gặp điều lạ','Không nên cưới gả, dễ chia ly'];
+  var DCK = {1:[13],2:[11],3:[9],4:[7],5:[5],6:[3],7:[8,29],8:[27],9:[25],10:[23],11:[21],12:[19]};
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function info(d, m, y) {
+    var r = baseInfo(d, m, y), jd = r.jd, can = mod(jd + 9, 10), chi = mod(jd + 1, 12);
+    var nx = jdToDate(jd + 1), nl = solar2lunar(nx[0], nx[1], nx[2]);
+    var ky = [];
+    if ([5, 14, 23].indexOf(r.ld) >= 0) ky.push('Nguyệt kỵ');
+    if (nl.d === 1) ky.push('Nguyệt tận');
+    if ([3, 7, 13, 18, 22, 27].indexOf(r.ld) >= 0) ky.push('Tam nương');
+    if ((DCK[r.lm] || []).indexOf(r.ld) >= 0) ky.push('Dương Công kỵ nhật');
+    var k = 0; while (k < 60 && !(k % 10 === can && k % 12 === chi)) k++;
+    var nap = NAP[Math.floor(k / 2)], hc = HC[can], hz = HZ[chi], rl;
+    if (hc === hz) rl = ['Can Chi tương đồng (' + hc + ')', 'ngày cát'];
+    else if (SINH[hc] === hz) rl = ['Can sinh Chi (' + hc + ' sinh ' + hz + ')', 'ngày cát'];
+    else if (SINH[hz] === hc) rl = ['Chi sinh Can (' + hz + ' sinh ' + hc + ')', 'ngày cát'];
+    else if (KHAC[hc] === hz) rl = ['Can khắc Chi (' + hc + ' khắc ' + hz + ')', 'ngày bình'];
+    else rl = ['Chi khắc Can (' + hz + ' khắc ' + hc + ')', 'ngày hung'];
+    var th = mod(chi, 4), tam = [CHI[mod(chi + 4, 12)], CHI[mod(chi + 8, 12)]];
+    var gioSet = {}; r.gio.forEach(function (g) { gioSet[g.split(' ')[0]] = 1; });
+    var hac = []; for (var i = 0; i < 12; i++) if (!gioSet[CHI[i]]) hac.push(CHI[i] + ' ' + ((i * 2 + 23) % 24) + '-' + ((i * 2 + 1) % 24));
+    var deg = sunDeg(jd), ti = Math.floor(deg / 15) % 24;
+    var diem = (r.hoangDao ? 2 : -1) + r.saoR + r.trucR - ky.length;
+    var x = {
+      can: can, chi: chi, ky: ky, napAm: nap, hanhNgay: hc, quanHe: rl[0], quanHeCat: rl[1],
+      lucHop: CHI[mod(13 - chi, 12)], tamHop: tam, tamHopCuc: ['Thủy','Kim','Hỏa','Mộc'][th],
+      xung: CHI[mod(chi + 6, 12)], hai: CHI[mod(7 - chi, 12)],
+      pha: CHI[[9,4,11,6,1,8,3,10,5,0,7,2][chi]],
+      hyThan: HYTHAN[can], taiThan: TAITHAN[can], bpCan: BP_CAN[can], bpChi: BP_CHI[chi],
+      gioHac: hac, tiet: TIET[ti], kinhDo: ti * 15, saoHanh: SAO_E[mod(jd + SAO_OFF, 28)],
+      diem: diem, danhGia: diem >= 4 ? 'Rất tốt' : diem >= 2 ? 'Tốt' : diem >= 0 ? 'Bình thường' : 'Xấu',
+      dayCan: can
+    };
+    for (var key in x) r[key] = x[key];
+    return r;
+  }
+  function gioHienTai(jd, hour) {
+    var idx = Math.floor((hour + 1) / 2) % 12, c = mod(jd + 9 + (hour >= 23 ? 1 : 0), 10);
+    return CAN[(mod(c, 5) * 2 + idx) % 10] + ' ' + CHI[idx];
+  }
+  var api = { info: info, gioHienTai: gioHienTai, solar2lunar: solar2lunar, lunar2solar: lunar2solar };
   return api;
 })();
 
-/* ===== Widget Lịch Vạn Niên ===== */
-var APP_URL = '';
+/* ===== Widget Lịch Vạn Niên (bản 2) ===== */
+var APP_URL = 'https://lich-van-nien-pied.vercel.app';
 var now = new Date(), D = now.getDate(), M = now.getMonth() + 1, Y = now.getFullYear();
 var n = Lunar.info(D, M, Y);
 var WDL = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
@@ -134,10 +184,15 @@ function T(st, txt, size, bold, col, lines) {
   x.textColor = col; x.lineLimit = lines || 1; x.minimumScaleFactor = 0.7;
   return x;
 }
+function hh(a) { return a.map(function (x) { return x.replace(/(\d+)-(\d+)$/, '$1h-$2h'); }); }
 var saoTxt = 'Sao ' + n.sao + (n.saoR > 0 ? ' (tốt)' : ' (xấu)');
 var saoCol = n.saoR > 0 ? GOOD : BAD;
 var trucTxt = 'Trực ' + n.truc + (n.trucR > 0 ? ' (tốt)' : n.trucR < 0 ? ' (xấu)' : '');
 var trucCol = n.trucR > 0 ? GOOD : n.trucR < 0 ? BAD : MUT;
+var hdTxt = (n.hoangDao ? 'Hoàng đạo: ' : 'Hắc đạo: ') + n.than;
+var hdCol = n.hoangDao ? GOOD : BAD;
+var kyTxt = n.ky.length ? 'Phạm kỵ: ' + n.ky.join(', ') : 'Không phạm ngày kỵ';
+var kyCol = n.ky.length ? BAD : MUT;
 var w = new ListWidget();
 w.backgroundColor = C('#EAF3EE', '#13201B');
 w.setPadding(12, 14, 12, 14);
@@ -157,24 +212,51 @@ function left(st) {
   T(st, saoTxt, 11, true, saoCol);
   T(st, trucTxt, 11, true, trucCol);
 }
+function section(st, title, txt, col, lines) {
+  T(st, title, 10, true, MUT);
+  T(st, txt, 11, false, col || INK, lines || 1);
+  st.addSpacer(3);
+}
 if (fam === 'small') {
   var s = w.addStack(); s.layoutVertically(); left(s);
+} else if (fam === 'large' || fam === 'extraLarge') {
+  var top = w.addStack(); top.topAlignContent();
+  var a1 = top.addStack(); a1.layoutVertically(); a1.size = new Size(140, 0); left(a1);
+  top.addSpacer(10);
+  var b1 = top.addStack(); b1.layoutVertically();
+  T(b1, hdTxt, 12, true, hdCol);
+  T(b1, 'Tháng ' + n.canChiThang, 11, false, INK);
+  T(b1, 'Năm ' + n.canChiNam, 11, false, INK);
+  T(b1, 'Tiết ' + n.tiet + ' (' + n.kinhDo + '°)', 11, false, MUT);
+  T(b1, kyTxt, 11, true, kyCol, 2);
+  w.addSpacer(8);
+  var g = w.addStack(); g.layoutVertically();
+  section(g, 'Giờ hoàng đạo', hh(n.gio).join('  ·  '), GOOD, 2);
+  section(g, 'Giờ hắc đạo', hh(n.gioHac).join('  ·  '), BAD, 2);
+  section(g, 'Hướng xuất hành', 'Hỷ thần: ' + n.hyThan + '  ·  Tài thần: ' + n.taiThan);
+  section(g, 'Nạp âm', n.napAm.charAt(0).toUpperCase() + n.napAm.slice(1) + '  ·  Xung ' + n.xung);
+  section(g, 'Nên làm', n.nen, INK, 2);
+  section(g, 'Nên tránh', n.tranh, MUT, 2);
 } else {
   var row = w.addStack(); row.topAlignContent();
   var a = row.addStack(); a.layoutVertically(); a.size = new Size(140, 0); left(a);
   row.addSpacer(10);
   var b = row.addStack(); b.layoutVertically();
-  T(b, n.hoangDao ? 'Ngày hoàng đạo (' + n.than + ')' : 'Ngày hắc đạo (' + n.than + ')', 12, true, n.hoangDao ? GOOD : BAD);
+  T(b, hdTxt, 12, true, hdCol);
   b.addSpacer(3);
-  T(b, 'Giờ hoàng đạo', 10.5, true, MUT);
-  T(b, n.gio.slice(0, 3).join('  ·  '), 11, false, INK);
-  T(b, n.gio.slice(3).join('  ·  '), 11, false, INK);
+  T(b, 'Giờ hoàng đạo', 10, true, MUT);
+  var h = hh(n.gio);
+  T(b, h.slice(0, 3).join('  ·  '), 10.5, false, INK);
+  T(b, h.slice(3).join('  ·  '), 10.5, false, INK);
   b.addSpacer(3);
-  T(b, 'Nên: ' + n.nen, 10.5, false, INK, 2);
-  T(b, 'Tránh: ' + n.tranh, 10.5, false, MUT, 2);
+  T(b, 'Hỷ thần: ' + n.hyThan + '  ·  Tài thần: ' + n.taiThan, 10.5, false, INK);
+  T(b, kyTxt, 10.5, true, kyCol);
+  b.addSpacer(3);
+  T(b, 'Nên: ' + n.nen, 10.5, false, MUT, 2);
 }
 w.refreshAfterDate = new Date(Y, M - 1, D + 1, 0, 5, 0);
 if (config.runsInWidget) { Script.setWidget(w); }
 else if (fam === 'small') { await w.presentSmall(); }
+else if (fam === 'large' || fam === 'extraLarge') { await w.presentLarge(); }
 else { await w.presentMedium(); }
 Script.complete();
