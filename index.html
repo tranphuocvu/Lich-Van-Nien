@@ -141,7 +141,7 @@ return '<div class="hd"><button class="ib" data-a="back" aria-label="Đóng">'+s
 '<div><label>Chuông báo</label><div class="chips">'+pills(RM,f.r,'chipR')+'</div></div>'+
 '<div><label>Lặp lại</label><div class="chips">'+pills(RP,f.rep,'chipP')+'</div></div>'+
 '<div class="btns" style="margin-top:6px"><button class="btn" data-a="save">Chỉ lưu</button><button class="btn p" data-a="saveics">Lưu và đặt chuông</button></div>'+
-'<div class="note">"Lưu và đặt chuông" sẽ chuyển lịch hẹn sang ứng dụng Lịch của iPhone để iPhone tự báo chuông. Bấm "Thêm vào Lịch" khi iPhone hỏi.</div></div>'}
+'<div class="note">"Lưu và đặt chuông" sẽ chuyển lịch hẹn sang ứng dụng Lịch của iPhone để iPhone tự báo chuông. Trong bảng chia sẻ hiện ra, chọn biểu tượng Lịch rồi bấm Thêm.</div></div>'}
 function evTab(){var d=key(T.y,T.m,T.d),l=EV.slice().sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1});
 return '<div class="top"><h1>Lịch hẹn</h1></div>'+(l.length?'<div class="list">'+l.map(function(e){var p=e.date.split('-');return '<div class="it"><div class="d">'+(+p[2])+'<span>Th '+(+p[1])+'</span></div><div style="flex:1;min-width:0"><div class="t1" style="font-size:14.5px">'+esc(e.title)+'</div><div class="t2">'+e.time+' · '+RM[e.r]+(e.rep!=='none'?' · '+RP[e.rep]:'')+'</div></div><button class="sm" data-a="ics1" data-id="'+e.id+'">Thêm vào Lịch</button><button class="sm" data-a="del" data-id="'+e.id+'">Xóa</button></div>'}).join('')+'</div>':'<div class="empty">Chưa có lịch hẹn nào.<br>Vào tab Lịch, chọn một ngày rồi bấm "Thêm lịch hẹn".</div>')}
 function goodTab(){var dim=new Date(S.y,S.m,0).getDate(),l='';
@@ -166,13 +166,14 @@ list.forEach(function(e){
 if(e.rep==='lunar'){var ly=+e.date.slice(0,4);for(var y=ly;y<=ly+12;y++){var s=Lunar.lunar2solar(e.ld,e.lm,y),k=key(s[2],s[1],s[0]);if(k>=e.date)L=L.concat(ve(e,k,false))}}
 else L=L.concat(ve(e,e.date,e.rep==='solar'))});
 L.push('END:VCALENDAR');return L.join('\r\n')}
-function out(list,name){var txt=ics(list);
-if(/iPhone|iPad|iPod/.test(navigator.userAgent)){var w=window.open('data:text/calendar;charset=utf-8,'+encodeURIComponent(txt),'_blank');if(w)return}
+function out(list,name){var txt=ics(list),f=null;
+try{f=new File([txt],name,{type:'text/calendar'})}catch(e){}
+if(f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'Lịch hẹn'}).catch(function(){});return}
 var u=URL.createObjectURL(new Blob([txt],{type:'text/calendar;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},60000)}
 function mv(k){S.m+=k;if(S.m<1){S.m=12;S.y--}if(S.m>12){S.m=1;S.y++}}
 function add(withIcs){var s=S.sel,n=info(s.y,s.m,s.d),e={id:Date.now().toString(36),date:key(s.y,s.m,s.d),time:$('#g').value||'08:00',title:($('#t').value.trim()||'Lịch hẹn'),note:$('#n').value.trim(),r:S.f.r,rep:S.f.rep,ld:n.ld,lm:n.lm};
 EV.push(e);save();S.view='main';S.f={r:0,rep:'none'};
-if(withIcs){render();out([e],'lich-hen.ics');say('Đã lưu. Bấm "Thêm vào Lịch" khi iPhone hỏi để có chuông báo.')}else say('Đã lưu lịch hẹn')}
+if(withIcs){render();out([e],'lich-hen.ics');say('Đã lưu. Trong bảng chia sẻ, chọn Lịch để có chuông báo.')}else say('Đã lưu lịch hẹn')}
 document.addEventListener('click',function(ev){var el=ev.target.closest('[data-a]');if(!el)return;var a=el.dataset.a,v=el.dataset.v,id=el.dataset.id;
 if(a==='sel'){S.sel={y:+el.dataset.y,m:+el.dataset.m,d:+el.dataset.d};S.y=S.sel.y;S.m=S.sel.m;render()}
 else if(a==='prev'){mv(-1);render()}else if(a==='next'){mv(1);render()}
