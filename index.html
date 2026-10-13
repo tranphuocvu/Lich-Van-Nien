@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F2F7F4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Lịch Vạn Niên">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -18,7 +21,7 @@ button,input{font:inherit;color:inherit}button{border:0;background:none;padding:
 .scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px;padding:0 4px 20px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px}
 h1{margin:0;font:700 26px ui-serif,Georgia,"Times New Roman",serif;color:var(--pri)}
-.sub{font-size:12.5px;color:var(--mut);margin-top:2px}
+.sub{font-size:12px;color:var(--mut);margin-top:2px}
 .ib{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;flex:none}
 .arrows{display:flex;gap:8px}
 .wk,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
@@ -71,7 +74,7 @@ function lbl(y,m,d){return WDL[dow(y,m,d)]+', '+d+'/'+m+'/'+y}
 var now=new Date(),T={y:now.getFullYear(),m:now.getMonth()+1,d:now.getDate()};
 var S={tab:'cal',view:'main',y:T.y,m:T.m,sel:null,fk:'cưới hỏi',fy:T.y,fm:T.m,cv:'s2l',res:''};
 function isT(y,m,d){return y===T.y&&m===T.m&&d===T.d}
-function head(y,m,t){var mid=info(y,m,15);return '<div class="top"><div><h1>'+t+'</h1><div class="sub">Tháng '+mid.lm+' âm · '+mid.canChiThang+' · năm '+mid.canChiNam+'</div></div><div class="arrows"><button class="ib" data-a="prev" aria-label="Tháng trước">'+svg('l',18)+'</button><button class="ib" data-a="next" aria-label="Tháng sau">'+svg('r',18)+'</button></div></div>'}
+function head(y,m,t){var mid=info(y,m,15);return '<div class="top"><div><h1>'+t+'</h1><div class="sub">Tháng '+mid.lm+' âm · '+mid.canChiThang+' · '+mid.canChiNam+'</div></div><div class="arrows"><button class="ib" data-a="prev" aria-label="Tháng trước">'+svg('l',18)+'</button><button class="ib" data-a="next" aria-label="Tháng sau">'+svg('r',18)+'</button></div></div>'}
 function cal(){var y=S.y,m=S.m,f=(new Date(y,m-1,1).getDay()+6)%7,dim=new Date(y,m,0).getDate(),rows=Math.ceil((f+dim)/7),g='';
 for(var i=0;i<rows*7;i++){var dt=new Date(y,m-1,1-f+i),cy=dt.getFullYear(),cm=dt.getMonth()+1,cd=dt.getDate(),n=info(cy,cm,cd);
 g+='<button class="c'+(cm!==m?' out':'')+(isT(cy,cm,cd)?' td':'')+(i%7===6?' sun':'')+'" data-a="open" data-y="'+cy+'" data-m="'+cm+'" data-d="'+cd+'" aria-label="'+lbl(cy,cm,cd)+', âm lịch '+n.ld+'/'+n.lm+'"><b>'+cd+'</b><i'+(n.ld===1?' class="f"':'')+'>'+(n.ld===1?n.ld+'/'+n.lm:n.ld)+'</i><u class="'+(n.hoangDao?'h':'')+'"></u></button>'}
