@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F7F4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lịch Vạn Niên">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Lịch Vạn Niên</title>
+<style>
+:root{--bg:#F2F7F4;--ink:#12231D;--mut:#54665E;--pri:#1F6B5A;--on:#fff;--acc:#8F5F0C;--soft:#E0EEE8;--card:#fff;--line:#D5E4DC;--good:#2563A6;--bad:#C2410C;--sun:#B42318;--gbg:#E1EBF7;--gfg:#1B4B80;--bbg:#FBE6DA;--bfg:#8A2F08;--fade:#A9B8B0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.35 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button{border:0;background:none;padding:0;cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 18px) 16px 16px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font:700 26px ui-serif,Georgia,"Times New Roman",serif;color:var(--pri)}
+.sub{font-size:12.5px;color:var(--mut);margin-top:2px}
+.ib{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center}
+.ib+.ib{margin-left:8px}
+.wk,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.wk{text-align:center;font-size:12px;font-weight:600;color:var(--mut);margin-top:4px}
+.wk .sun,.c.sun{color:var(--sun)}
+.grid{gap:2px}
+.c{height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.c b{font-size:16px;font-weight:600}
+.c i{font-style:normal;font-size:10.5px;color:var(--mut)}
+.c i.f{color:var(--acc);font-weight:700}
+.c.out{color:var(--fade)}.c.out i{color:var(--fade)}
+.c.td:not(.sel){box-shadow:inset 0 0 0 1.5px var(--pri)}
+.c.sel{background:var(--pri);color:var(--on)}.c.sel i,.c.sel i.f{color:var(--on)}
+.dots{display:flex;gap:3px;align-items:center;height:6px}
+.dots u{width:6px;height:6px;border-radius:3px}.dots u.g{background:var(--good)}.dots u.b{background:var(--bad)}
+.dots s{width:10px;height:3px;border-radius:2px}.dots s.e{background:var(--pri)}
+.sel .dots u.g,.sel .dots u.b,.sel .dots s.e{background:var(--on)}
+.leg{display:flex;gap:14px;justify-content:center;font-size:11.5px;color:var(--mut)}
+.leg span{display:flex;align-items:center;gap:5px}.leg em{display:inline-block;width:8px;height:8px;border-radius:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:14px}
+.badge{width:62px;height:62px;border-radius:18px;background:var(--pri);color:var(--on);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.badge b{font:700 26px/1 ui-serif,Georgia,serif}.badge span{font-size:10px;margin-top:2px}
+.t1{font-weight:700;font-size:16px}.t2{font-size:12.5px;color:var(--mut);margin-top:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:5px 10px;border-radius:14px;background:var(--soft);font-size:12px;font-weight:600}
+.chip.g{background:var(--gbg);color:var(--gfg)}.chip.b{background:var(--bbg);color:var(--bfg)}
+.ev{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px;padding:10px 12px;font-size:13.5px}
+.ev svg{flex:none}.ev .x{margin-left:auto;display:flex;gap:6px}
+.sm{min-height:36px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:12.5px;font-weight:600}
+.btns{display:flex;gap:10px}
+.btn{flex:1;min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:14px}
+.btn.p{background:var(--pri);color:var(--on);border-color:var(--pri)}
+.nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav button{height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--mut)}
+.nav button.on{color:var(--pri)}
+.hero{background:var(--pri);color:var(--on);border-radius:20px;padding:18px;display:flex;gap:18px;align-items:center}
+.hero b{font:700 60px/1 ui-serif,Georgia,serif}.hero div{font-size:13px;line-height:1.6}.hero .t1{font-size:15px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mini{font-size:11.5px;color:var(--mut)}.note{font-size:12px;color:var(--mut);line-height:1.5}
+.box{border-radius:16px;padding:12px;font-size:12.5px;line-height:1.5}.box b{display:block;margin-bottom:4px}
+.box.g{background:var(--gbg);color:var(--gfg)}.box.b{background:var(--bbg);color:var(--bfg)}
+.hd{display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top) + 12px) 12px 4px}
+.hd .t{font:600 17px ui-serif,Georgia,serif}
+.f label{font-size:12px;color:var(--mut);font-weight:600;display:block;margin-bottom:6px}
+input{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:var(--card);font-size:16px}
+.pill{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:600}
+.pill.on{background:var(--pri);color:var(--on);border-color:var(--pri)}
+.list{display:flex;flex-direction:column;gap:8px}
+.it{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;width:100%}
+.it .d{width:46px;height:46px;border-radius:12px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;flex:none;line-height:1.1}
+.it .d span{font-size:10px;font-weight:600;color:var(--mut)}
+.empty{text-align:center;color:var(--mut);padding:30px 0;font-size:13.5px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:14px;font-size:13px;max-width:88%;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="lunar.js"></script>
+<script>
+(function(){
+var WD=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+var RM={0:'Đúng giờ',15:'Trước 15 phút',60:'Trước 1 giờ',1440:'Trước 1 ngày'};
+var RP={none:'Không lặp',solar:'Hàng năm (dương)',lunar:'Hàng năm (âm)'};
+var IC={bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',l:'<path d="M15 5l-7 7 7 7"/>',r:'<path d="M9 5l7 7-7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',
+cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'};
+function svg(n,s,c){return '<svg width="'+(s||20)+'" height="'+(s||20)+'" viewBox="0 0 24 24" fill="none" stroke="'+(c||'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n]+'</svg>'}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function p2(n){return n<10?'0'+n:''+n}
+function key(y,m,d){return y+'-'+p2(m)+'-'+p2(d)}
+var $=function(s){return document.querySelector(s)};
+var C={};
+function info(y,m,d){var k=y*10000+m*100+d;return C[k]||(C[k]=Lunar.info(d,m,y))}
+function dow(y,m,d){return new Date(y,m-1,d).getDay()}
+function lbl(y,m,d){return WD[dow(y,m,d)]+', '+d+'/'+m+'/'+y}
+var now=new Date(),T={y:now.getFullYear(),m:now.getMonth()+1,d:now.getDate()};
+var S={tab:'cal',view:'main',y:T.y,m:T.m,sel:{y:T.y,m:T.m,d:T.d},f:{r:0,rep:'none'},toast:''};
+var EV=[];try{EV=JSON.parse(localStorage.getItem('lvn.ev')||'[]')}catch(e){}
+function save(){try{localStorage.setItem('lvn.ev',JSON.stringify(EV))}catch(e){}}
+function evOn(y,m,d){var k=key(y,m,d),i=info(y,m,d);
+return EV.filter(function(e){if(e.rep==='none')return e.date===k;if(k<e.date)return false;
+if(e.rep==='solar')return e.date.slice(5)===k.slice(5);return e.ld===i.ld&&e.lm===i.lm&&!i.leap}).sort(function(a,b){return a.time<b.time?-1:1})}
+function chip(n){var c=n.rating>0?'g':n.rating<0?'b':'';return c}
+function evRow(e,y,m,d,full){return '<div class="ev">'+svg('bell',18,'var(--pri)')+'<b>'+esc(e.time)+'</b><span>'+esc(e.title)+'</span>'+(full?'<span class="x"><button class="sm" data-a="ics1" data-id="'+e.id+'">Thêm vào Lịch</button><button class="sm" data-a="del" data-id="'+e.id+'">Xóa</button></span>':'')+'</div>'}
+function nav(){var t=[['cal','Lịch','cal'],['ev','Lịch hẹn','bell'],['good','Ngày tốt','star'],['set','Cài đặt','set']];
+return '<div class="nav">'+t.map(function(x){return '<button class="'+(S.tab===x[0]?'on':'')+'" data-a="tab" data-v="'+x[0]+'">'+svg(x[2],22)+x[1]+'</button>'}).join('')+'</div>'}
+function mh(){var mid=info(S.y,S.m,15);
+return '<div class="top"><div><h1>Tháng '+S.m+', '+S.y+'</h1><div class="sub">Tháng '+mid.lm+' âm · '+mid.canChiThang+' · năm '+mid.canChiNam+'</div></div><div style="display:flex"><button class="ib" data-a="prev" aria-label="Tháng trước">'+svg('l',18)+'</button><button class="ib" data-a="next" aria-label="Tháng sau">'+svg('r',18)+'</button></div></div>'}
+function cal(){var y=S.y,m=S.m,f=(new Date(y,m-1,1).getDay()+6)%7,dim=new Date(y,m,0).getDate(),rows=Math.ceil((f+dim)/7),g='';
+for(var i=0;i<rows*7;i++){var dt=new Date(y,m-1,1-f+i),cy=dt.getFullYear(),cm=dt.getMonth()+1,cd=dt.getDate(),n=info(cy,cm,cd);
+var sel=S.sel.y===cy&&S.sel.m===cm&&S.sel.d===cd,td=cy===T.y&&cm===T.m&&cd===T.d,ev=evOn(cy,cm,cd).length>0;
+g+='<button class="c'+(sel?' sel':'')+(cm!==m?' out':'')+(td?' td':'')+(i%7===6?' sun':'')+'" data-a="sel" data-y="'+cy+'" data-m="'+cm+'" data-d="'+cd+'" aria-label="'+lbl(cy,cm,cd)+', âm lịch '+n.ld+'/'+n.lm+'"><b>'+cd+'</b><i'+(n.ld===1?' class="f"':'')+'>'+(n.ld===1?n.ld+'/'+n.lm:n.ld)+'</i><span class="dots"><u class="'+(n.rating>0?'g':n.rating<0?'b':'')+'"></u><s class="'+(ev?'e':'')+'"></s></span></button>'}
+var s=S.sel,n=info(s.y,s.m,s.d),es=evOn(s.y,s.m,s.d);
+return mh()+'<div class="wk"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span class="sun">CN</span></div><div class="grid">'+g+'</div>'+
+'<div class="leg"><span><em style="background:var(--good)"></em>Ngày tốt</span><span><em style="background:var(--bad)"></em>Ngày xấu</span><span><em style="width:12px;height:3px;background:var(--pri)"></em>Có lịch hẹn</span></div>'+
+'<div class="card"><div class="row"><div class="badge"><b>'+n.ld+'</b><span>âm lịch</span></div><div><div class="t1">'+lbl(s.y,s.m,s.d)+'</div><div class="t2">'+n.ld+' tháng '+n.lm+(n.leap?' nhuận':'')+' · ngày '+n.canChiNgay+'</div></div></div>'+
+'<div class="chips"><span class="chip '+(n.saoR>0?'g':n.saoR<0?'b':'')+'">Sao '+n.sao+(n.saoR>0?' (tốt)':n.saoR<0?' (xấu)':'')+'</span><span class="chip '+(n.trucR>0?'g':n.trucR<0?'b':'')+'">Trực '+n.truc+'</span><span class="chip '+(n.hoangDao?'g':'b')+'">'+(n.hoangDao?'Hoàng đạo':'Hắc đạo')+'</span></div>'+
+es.slice(0,2).map(function(e){return evRow(e)}).join('')+(es.length>2?'<div class="mini">+'+(es.length-2)+' lịch hẹn khác</div>':'')+
+'<div class="btns"><button class="btn" data-a="day">Xem ngày giờ</button><button class="btn p" data-a="add">+ Thêm lịch hẹn</button></div></div>'}
+function dayV(){var s=S.sel,n=info(s.y,s.m,s.d),es=evOn(s.y,s.m,s.d),v=n.rating>0?'Ngày tốt':n.rating<0?'Ngày xấu':'Ngày bình thường';
+return '<div class="hd"><button class="ib" data-a="back" aria-label="Quay lại">'+svg('l',18)+'</button><div class="t">'+lbl(s.y,s.m,s.d)+'</div></div><div class="scroll">'+
+'<div class="hero"><b>'+n.ld+'</b><div><div class="t1">Tháng '+n.lm+(n.leap?' nhuận':'')+' âm, '+n.canChiNam+'</div>Ngày '+n.canChiNgay+' · Tháng '+n.canChiThang+'<br>'+v+'</div></div>'+
+'<div class="two"><div class="card" style="padding:12px;gap:6px"><div class="mini">Sao (28 tú)</div><div class="t1">Sao '+n.sao+'</div><span class="chip '+(n.saoR>0?'g':'b')+'" style="align-self:flex-start">'+(n.saoR>0?'Sao tốt':'Sao xấu')+'</span><div class="note">'+(n.saoR>0?'Thuận lợi để khởi sự, cưới hỏi, xây cất, khai trương.':'Nên hạn chế việc lớn như cưới hỏi, xây cất, khai trương.')+'</div></div>'+
+'<div class="card" style="padding:12px;gap:6px"><div class="mini">Trực (12 trực)</div><div class="t1">Trực '+n.truc+'</div><span class="chip '+(n.trucR>0?'g':n.trucR<0?'b':'')+'" style="align-self:flex-start">'+(n.trucR>0?'Tốt':n.trucR<0?'Xấu':'Trung bình')+'</span><div class="note">Ngày '+(n.hoangDao?'hoàng đạo':'hắc đạo')+' ('+n.than+').</div></div></div>'+
+'<div class="card" style="padding:12px;gap:8px"><div class="t1" style="font-size:14px">Giờ hoàng đạo</div><div class="chips">'+n.gio.map(function(x){return '<span class="chip">'+x+'</span>'}).join('')+'</div></div>'+
+'<div class="two"><div class="box g"><b>Nên làm</b>'+n.nen+'</div><div class="box b"><b>Nên tránh</b>'+n.tranh+'</div></div>'+
+'<div class="card" style="padding:12px"><div class="t1" style="font-size:14px">Lịch hẹn ngày này</div>'+(es.length?es.map(function(e){return evRow(e,0,0,0,true)}).join(''):'<div class="note">Chưa có lịch hẹn.</div>')+'</div>'+
+'<div class="note">Thông tin sao, trực, giờ hoàng đạo mang tính tham khảo theo lịch vạn niên truyền thống.</div>'+
+'<button class="btn p" data-a="add">+ Thêm lịch hẹn</button></div>'}
+function addV(){var s=S.sel,n=info(s.y,s.m,s.d),f=S.f;
+function pills(map,cur,a){return Object.keys(map).map(function(k){return '<button class="pill'+(String(cur)===k?' on':'')+'" data-a="'+a+'" data-v="'+k+'">'+map[k]+'</button>'}).join('')}
+return '<div class="hd"><button class="ib" data-a="back" aria-label="Đóng">'+svg('x',18)+'</button><div class="t">Thêm lịch hẹn</div></div><div class="scroll f">'+
+'<div class="hero" style="padding:12px 16px;font-size:13.5px">'+lbl(s.y,s.m,s.d)+' · '+n.ld+' tháng '+n.lm+' âm</div>'+
+'<div><label for="t">Tiêu đề</label><input id="t" placeholder="Ví dụ: Đi lễ" autocomplete="off"></div>'+
+'<div><label for="n">Ghi chú</label><input id="n" placeholder="Ví dụ: Đi lễ tối nay" autocomplete="off"></div>'+
+'<div><label for="g">Giờ</label><input id="g" type="time" value="08:00"></div>'+
+'<div><label>Chuông báo</label><div class="chips">'+pills(RM,f.r,'chipR')+'</div></div>'+
+'<div><label>Lặp lại</label><div class="chips">'+pills(RP,f.rep,'chipP')+'</div></div>'+
+'<div class="btns" style="margin-top:6px"><button class="btn" data-a="save">Chỉ lưu</button><button class="btn p" data-a="saveics">Lưu và đặt chuông</button></div>'+
+'<div class="note">"Lưu và đặt chuông" sẽ chuyển lịch hẹn sang ứng dụng Lịch của iPhone để iPhone tự báo chuông. Bấm "Thêm vào Lịch" khi iPhone hỏi.</div></div>'}
+function evTab(){var d=key(T.y,T.m,T.d),l=EV.slice().sort(function(a,b){return (a.date+a.time)<(b.date+b.time)?-1:1});
+return '<div class="top"><h1>Lịch hẹn</h1></div>'+(l.length?'<div class="list">'+l.map(function(e){var p=e.date.split('-');return '<div class="it"><div class="d">'+(+p[2])+'<span>Th '+(+p[1])+'</span></div><div style="flex:1;min-width:0"><div class="t1" style="font-size:14.5px">'+esc(e.title)+'</div><div class="t2">'+e.time+' · '+RM[e.r]+(e.rep!=='none'?' · '+RP[e.rep]:'')+'</div></div><button class="sm" data-a="ics1" data-id="'+e.id+'">Thêm vào Lịch</button><button class="sm" data-a="del" data-id="'+e.id+'">Xóa</button></div>'}).join('')+'</div>':'<div class="empty">Chưa có lịch hẹn nào.<br>Vào tab Lịch, chọn một ngày rồi bấm "Thêm lịch hẹn".</div>')}
+function goodTab(){var dim=new Date(S.y,S.m,0).getDate(),l='';
+for(var d=1;d<=dim;d++){var n=info(S.y,S.m,d);if(n.rating>0)l+='<button class="it" data-a="goday" data-d="'+d+'"><div class="d">'+d+'<span>'+WD[dow(S.y,S.m,d)].replace('Thứ ','T').replace('Chủ Nhật','CN')+'</span></div><div><div class="t1" style="font-size:14.5px">'+n.ld+'/'+n.lm+' âm · '+n.canChiNgay+'</div><div class="t2">'+n.than+' · Trực '+n.truc+' · Sao '+n.sao+'</div></div></button>'}
+return mh().replace('<h1>','<h1>').replace('Tháng '+S.m+', '+S.y,'Ngày tốt T'+S.m+'/'+S.y)+(l?'<div class="list">'+l+'</div>':'<div class="empty">Tháng này không có ngày được đánh giá tốt.</div>')}
+function setTab(){return '<div class="top"><h1>Cài đặt</h1></div><div class="card"><div class="t1" style="font-size:14.5px">Lịch hẹn</div><div class="note">Có '+EV.length+' lịch hẹn lưu trên máy này. Dữ liệu không gửi đi đâu.</div><button class="btn" data-a="icsall">Xuất tất cả sang Lịch iPhone</button><button class="btn" data-a="clear">Xóa toàn bộ lịch hẹn</button></div>'+
+'<div class="card"><div class="t1" style="font-size:14.5px">Cài app lên iPhone</div><div class="note">Mở trang này bằng Safari, bấm nút Chia sẻ, chọn "Thêm vào Màn hình chính".</div></div>'}
+function render(){var h;
+if(S.view==='day')h=dayV();else if(S.view==='add')h=addV();
+else{var b=S.tab==='cal'?cal():S.tab==='ev'?evTab():S.tab==='good'?goodTab():setTab();h='<div class="scroll">'+b+'</div>'+nav()}
+$('#app').innerHTML=h+(S.toast?'<div class="toast">'+esc(S.toast)+'</div>':'')}
+function say(t){S.toast=t;render();setTimeout(function(){S.toast='';var e=$('.toast');if(e)e.remove()},3200)}
+function ics(list){var st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+function t(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+function ve(e,date,rr){var p=date.split('-').map(Number),h=e.time.split(':').map(Number),a=new Date(p[0],p[1]-1,p[2],h[0],h[1]),b=new Date(a.getTime()+30*60000);
+function f(x){return x.getFullYear()+p2(x.getMonth()+1)+p2(x.getDate())+'T'+p2(x.getHours())+p2(x.getMinutes())+'00'}
+var o=['BEGIN:VEVENT','UID:'+e.id+'-'+date+'@lichvannien','DTSTAMP:'+st,'DTSTART:'+f(a),'DTEND:'+f(b),'SUMMARY:'+t(e.title)];
+if(e.note)o.push('DESCRIPTION:'+t(e.note));if(rr)o.push('RRULE:FREQ=YEARLY');
+o.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+t(e.title),e.r?'TRIGGER:-PT'+e.r+'M':'TRIGGER:PT0S','END:VALARM','END:VEVENT');return o}
+var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LichVanNien//VI','CALSCALE:GREGORIAN'];
+list.forEach(function(e){
+if(e.rep==='lunar'){var ly=+e.date.slice(0,4);for(var y=ly;y<=ly+12;y++){var s=Lunar.lunar2solar(e.ld,e.lm,y),k=key(s[2],s[1],s[0]);if(k>=e.date)L=L.concat(ve(e,k,false))}}
+else L=L.concat(ve(e,e.date,e.rep==='solar'))});
+L.push('END:VCALENDAR');return L.join('\r\n')}
+function out(list,name){var txt=ics(list);
+if(/iPhone|iPad|iPod/.test(navigator.userAgent)){var w=window.open('data:text/calendar;charset=utf-8,'+encodeURIComponent(txt),'_blank');if(w)return}
+var u=URL.createObjectURL(new Blob([txt],{type:'text/calendar;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},60000)}
+function mv(k){S.m+=k;if(S.m<1){S.m=12;S.y--}if(S.m>12){S.m=1;S.y++}}
+function add(withIcs){var s=S.sel,n=info(s.y,s.m,s.d),e={id:Date.now().toString(36),date:key(s.y,s.m,s.d),time:$('#g').value||'08:00',title:($('#t').value.trim()||'Lịch hẹn'),note:$('#n').value.trim(),r:S.f.r,rep:S.f.rep,ld:n.ld,lm:n.lm};
+EV.push(e);save();S.view='main';S.f={r:0,rep:'none'};
+if(withIcs){render();out([e],'lich-hen.ics');say('Đã lưu. Bấm "Thêm vào Lịch" khi iPhone hỏi để có chuông báo.')}else say('Đã lưu lịch hẹn')}
+document.addEventListener('click',function(ev){var el=ev.target.closest('[data-a]');if(!el)return;var a=el.dataset.a,v=el.dataset.v,id=el.dataset.id;
+if(a==='sel'){S.sel={y:+el.dataset.y,m:+el.dataset.m,d:+el.dataset.d};S.y=S.sel.y;S.m=S.sel.m;render()}
+else if(a==='prev'){mv(-1);render()}else if(a==='next'){mv(1);render()}
+else if(a==='tab'){if(v==='cal'&&S.tab==='cal'){S.y=T.y;S.m=T.m;S.sel={y:T.y,m:T.m,d:T.d}}S.tab=v;render()}
+else if(a==='day'){S.view='day';render()}
+else if(a==='goday'){S.sel={y:S.y,m:S.m,d:+el.dataset.d};S.view='day';render()}
+else if(a==='add'){S.f={r:0,rep:'none'};S.view='add';render()}
+else if(a==='back'){S.view='main';render()}
+else if(a==='chipR'||a==='chipP'){if(a==='chipR')S.f.r=+v;else S.f.rep=v;document.querySelectorAll('[data-a="'+a+'"]').forEach(function(b){b.classList.toggle('on',b.dataset.v===v)})}
+else if(a==='save')add(false);else if(a==='saveics')add(true);
+else if(a==='del'){if(confirm('Xóa lịch hẹn này?')){EV=EV.filter(function(e){return e.id!==id});save();render()}}
+else if(a==='ics1'){out(EV.filter(function(e){return e.id===id}),'lich-hen.ics')}
+else if(a==='icsall'){if(EV.length)out(EV,'lich-hen-tat-ca.ics');else say('Chưa có lịch hẹn nào')}
+else if(a==='clear'){if(EV.length&&confirm('Xóa toàn bộ lịch hẹn?')){EV=[];save();render()}}});
+render();
+if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+})();
+</script>
+</body>
+</html>
